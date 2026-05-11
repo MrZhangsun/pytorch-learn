@@ -471,7 +471,7 @@ for epoch in range(epochs):
         counter = 0
 
         # 保存最佳模型
-        torch.save(model.state_dict(), "best_model.pt")
+        torch.save(model.state_dict(), "../basic/best_model.pt")
         print("✅ Best model saved.")
     else:
         counter += 1

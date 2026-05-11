@@ -9,7 +9,7 @@ def test_nllb_translation():
     model_name = "facebook/nllb-200-distilled-600M"
 
     # 指定 src_lang 为英语
-    AutoTokenizer.from_pretrained(model_name, src_lang="eng_Latn")
+    tokenizer = AutoTokenizer.from_pretrained(model_name, src_lang="eng_Latn")
 
     # 使用 float16 精度以节省 Mac 的 36GB 内存
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to("mps")
