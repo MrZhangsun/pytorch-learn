@@ -82,7 +82,7 @@ def cnn1(image):
     print("特征层：", features)
     print("分类层：", classify)
 
-    image = torch.unsqueeze(image_tensor, 0)
+    image = torch.unsqueeze(image, 0)
     print("输入：", image.shape)
     z7 = features(image)
     print("特征层输出：", z7.shape)
