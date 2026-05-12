@@ -72,13 +72,15 @@ def predict0():
     print(f"Top5预测类别概率:{top_k_prob}")
 
 
+@torch.no_grad()
 def predict1():
     transform = transforms.Compose([
         transforms.Resize(160, max_size=320),
         transforms.ToTensor()
     ])
 
-    image_path = dataset_save_path.joinpath("飞机2.jpg")
+    image_path = dataset_save_path.joinpath("飞机.jpg")
+    # image_path = dataset_save_path.joinpath("飞机2.jpg")
     img = Image.open(image_path)
     img = img.convert("RGB")
     img_tensor = transform(img)
@@ -116,6 +118,8 @@ def predict1():
     这段代码是深度学习中的**“开天眼”**操作。它打破了神经网络的“黑盒”，
     让你亲眼看到模型是如何一步步把一张彩色照片拆解成数学特征的。
     这对于理解 CNN（卷积神经网络）的工作原理非常有帮助！
+    
+    CNN 多层卷积的过程，类似学习物体指纹信息的过程
     """
     for i in [2, 4, 5, 10, 31]: # 这是在选取 VGG16 模型中几个具有代表性的层索引。
         sub_layers = model.features[:i]
