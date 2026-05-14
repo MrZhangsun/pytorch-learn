@@ -54,10 +54,10 @@ def build_transforms():
     ])
 
     transform_val = transforms.Compose([
-        # transforms.Resize(256),  # 缩放
-        transforms.Resize(448),  # 缩放
-        # transforms.CenterCrop(224),  # 居中裁剪
-        transforms.CenterCrop(448),  # 居中裁剪
+        transforms.Resize(256),  # 缩放
+        # transforms.Resize(448),  # 缩放
+        transforms.CenterCrop(224),  # 居中裁剪
+        # transforms.CenterCrop(448),  # 居中裁剪
         transforms.ToTensor(),
         transforms.Normalize(
             [0.485, 0.456, 0.406],# RGB均值mean=[0.485,0.456,0.406]
@@ -76,7 +76,7 @@ def load_data():
     # 验证标签分类情况
     # print(full_dataset) # 17类
     # print(full_dataset.classes) # 17类
-    # print(full_dataset.class_to_idx) # 17类对应的标签
+    print(full_dataset.class_to_idx) # 17类对应的标签
     # print(full_dataset.samples[0]) # 查看一个样本的分类情况
     # print(full_dataset.targets) # 所有样本的标签
     # print(range(len(full_dataset)))
@@ -287,5 +287,5 @@ def fine_tuning():
 if __name__ == '__main__':
     # load_flower_images(35)
     # load_model()
-    fine_tuning()
-    # load_data()
+    # fine_tuning()
+    load_data()
