@@ -15,6 +15,7 @@ from flower_fine_tuning import build_transforms
 6. 采用Java + Spring Boot作为API推理服务；
 7. Python复用训练阶段的数据预处理transformer对预测数据进行预处理；
 8. 调用Java Http API进行预测。
+ONNX Runtime for Java + Spring Boot代码：git@github.com:MrZhangsun/onnx-server-springboot.git
 """
 
 def predict(image_path, url="http://localhost:8080/api/v1/predict"):
