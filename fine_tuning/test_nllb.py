@@ -23,6 +23,7 @@ def test_nllb_translation():
         "The VGG16 model uses a deep convolutional neural network architecture.",
         "Artificial intelligence is transforming the way we interact with technology.",
         "Machine learning models require large amounts of data for training.",
+        "Do you know what is the UPC?"
     ]
 
     for text in texts:
