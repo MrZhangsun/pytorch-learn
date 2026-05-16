@@ -53,10 +53,75 @@ def google_net():
     print(google)
 
 def res_net():
+    """
+    ResNet（Residual Network）是 2015 年 Google 提出的一种深度学习结构，其设计理念是：
+    “残差网络（Residual Network）”
+    “残差块（Residual Block）”
+    “残差连接（Residual Connection）”
+    ResNet 引入了残差块（Residual Block），残差块的组成结构如下图所示：
+    残差块的组成结构：
+    残差块的输入和输出维度相同，因此，残差块的输出可以直接与输入相加。
+
+
+    针对一个Block，残差计算过程如下：
+    identity = x # 输入特征，也是上一个block的输出特征
+    out = conv1(x)
+    out = bn1(out)
+    out = relu(out)
+
+    out = conv2(out)
+    out = bn2(out)
+
+    identity = downsample(x) # downsample 输入的是 x
+    out += identity #  F(x)
+
+    当前层是在x的基础上，学习到了残差F(x)，最终也学习到的特征y，即：
+            y = F(x) + x
+
+    这里：
+        F(x)：当前 block 学到的残差映射
+        x：shortcut
+        y：当前 block 输出
+
+    真实的多层传播，假设：2 个 residual block。
+    第1个 block
+    输入：x₁
+    输出：y₁ = x₁ + F₁(x₁)
+
+    第2个 block
+    注意：
+    输入已经变了：x₂ = y₁
+    所以，输出：y₂ = x₂ + F₂(x₂)
+    代入 x2 = y₁ = x₁ + F₁(x₁)，
+    得到：y₂ = x₁ + F₁(x₁) + F₂(x₂)
+    第n个block的输入的一般形式：Xⁿ⁺¹ = Xⁿ + Fⁿ(Xⁿ)，可以看出每一层的学习都是在上一层的基础上进行修正
+
+    y_hat = F(xⁿ) + F(xⁿ⁻¹) + F(xⁿ⁻²) ... + F(x¹) + x
+    loss = y - y_hat
+
+    因此，网络不是每层重新生成完整特征，而是在已有特征基础上不断进行增量修正。
+    反向传播时：
+        ∂L/∂x = ∂L/∂y (1 + ∂F(x)/∂x)
+
+    由上述公式可以看出，不管神经网络层数有多深，梯度永远都不会消失
+
+    普通多层卷积后梯度消失的原因是因为，每一层梯度通常：<1，例如：0.9
+    多层之间又是相乘的关系，假设有100层，则梯度为：0.9^100 = 0.000026，约等于0，因此梯度会消失
+
+    但是对于残差神经网络，由于每一层：Xⁿ⁺¹ = Xⁿ + Fⁿ(Xⁿ)，
+    每一层的梯度：∂Xⁿ⁺¹/∂Xⁿ = ∂Xⁿ/∂Xⁿ + ∂Fⁿ(Xⁿ)/∂Xⁿ
+                          = 1 + ∂Fⁿ(Xⁿ)/∂Xⁿ
+    这种情况下，理论上来讲，仍然存在梯度消失的可能，比如当：∂Fⁿ(Xⁿ)/∂Xⁿ是一个跟大的负值时，梯度就会趋近于0，但是ResNet解决的是，让梯度
+    不再必须完全依赖卷积层。shortcut 提供了一个导数为 1 的恒等梯度通路。因此：
+        即使残差分支梯度变小，
+        梯度仍可以通过 identity path 稳定传播，
+        从而大幅缓解梯度消失问题。
+
+    """
     res = models.resnet34(weights=None)
     print(res)
 if __name__ == '__main__':
     # alex_net()
     # vgg_net()
-    # res_net()
-    google_net()
+    res_net()
+    # google_net()
