@@ -1,5 +1,6 @@
 from torchvision import models
-
+from thop import profile, clever_format
+import torch
 
 def alex_net():
     """
@@ -51,6 +52,12 @@ def vgg_net():
 def google_net():
     google = models.googlenet(weights=None)
     print(google)
+    x = torch.randn(1, 3, 224, 224)
+    calculate_flops(google, x)
+    """
+    参数数量： 6.625M
+    计算量： 1.511G
+    """
 
 def res_net():
     """
@@ -118,8 +125,30 @@ def res_net():
         从而大幅缓解梯度消失问题。
 
     """
-    res = models.resnet34(weights=None)
-    print(res)
+    res = models.resnet18(weights=None)
+    x = torch.randn(1, 3, 224, 224)
+    calculate_flops(res, x)
+    """
+    参数数量： 21.798M
+    计算量： 3.679G
+    """
+
+
+def calculate_flops(model, x):
+    """
+    计算 FLOPs
+    :return:
+    """
+    macs, params = profile(model, (x,))
+
+    # 格式化
+    macs, params = clever_format(
+        [macs, params],
+        "%.3f"
+    )
+    print("参数数量：", params)
+    print("计算量：", macs)
+
 if __name__ == '__main__':
     # alex_net()
     # vgg_net()
