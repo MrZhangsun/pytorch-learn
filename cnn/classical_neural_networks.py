@@ -133,6 +133,12 @@ def res_net():
     计算量： 3.679G
     """
 
+def dense_net():
+    dense = models.densenet121(weights=None)
+    x = torch.rand(1, 3, 224, 224)
+
+    calculate_flops(dense, x)
+    # print(dense)
 
 def calculate_flops(model, x):
     """
@@ -154,3 +160,4 @@ if __name__ == '__main__':
     # vgg_net()
     res_net()
     # google_net()
+    dense_net()

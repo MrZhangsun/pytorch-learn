@@ -156,11 +156,16 @@ def train(model, train_data_loader, test_data_loader):
     optimizer = optim.Adam(model.parameters(),
                            lr=learning_rate,
                            weight_decay=weight_decay)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        mode='min',
+        factor=0.1,
+        patience=5)
     # 损失函数
     criterion = nn.CrossEntropyLoss()
 
     model.to(device)
-    early_stop_patience = 5
+    early_stop_patience = 10
     best_loss = float("inf") # 正无穷大
     for epoch in range(epochs):
         # 每一批数据训练
@@ -209,6 +214,7 @@ def train(model, train_data_loader, test_data_loader):
             metrics.classification_report(correct_y, predict_y)
             avg_test_loss = total_test_loss / len(test_data_loader)
             avg_train_loss = total_train_loss / len(train_data_loader)
+            scheduler.step(avg_test_loss)
 
             # Early Stopping
             if avg_test_loss < best_loss:
@@ -220,10 +226,10 @@ def train(model, train_data_loader, test_data_loader):
                     "net_param": model.state_dict(),  # 仅持久化模型参数，是一个字典
                     "epoch": epoch
                 }, "best_model.pt")
-                early_stop_patience = 0
+                counter = 0
             else:
-                early_stop_patience += 1
-                if early_stop_patience >= 5:
+                counter += 1
+                if counter >= early_stop_patience:
                     print("Early stopping")
                     break
 
@@ -231,7 +237,7 @@ def train(model, train_data_loader, test_data_loader):
                   f"Train Loss: {avg_train_loss:.4f}, Test/Best Loss: {avg_test_loss:.4f}/{best_loss:.4f}, "
                   f"Train Acc: {train_acc:.4f}, Test Acc: {test_acc:.4f}, "
                   f"LR: {optimizer.param_groups[0]['lr']:.4f} "
-                  f"Early Stop: {early_stop_patience}")
+                  f"Early Stop: {counter}")
 
 
 
@@ -240,7 +246,7 @@ if __name__ == '__main__':
     bs = 64
 
     # the_train_loader, the_test_loader, class_names = load_data_by_ml(bs * 300, bs * 50, bs)
-    the_train_loader, the_test_loader, class_names = load_data_by_dl(bs * 300, bs * 50, bs)
+    the_train_loader, the_test_loader, class_names = load_data_by_dl(bs * 600, bs * 100, bs)
     # print(len(the_train_loader.dataset), len(the_test_loader.dataset))
     the_model = MNISTNet()
     print(the_model)

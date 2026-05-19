@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import random_split, DataLoader
 from sklearn.model_selection import train_test_split
+from sklearn import metrics
+from torch.utils.tensorboard import SummaryWriter
 
 flower_root_dir = Path(__file__).parent.parent.joinpath("202601_CV/20260412/17flowers")
 model_output_path = Path(__file__).parent.parent.joinpath("assets/model")
@@ -76,7 +78,7 @@ def load_data():
     # 验证标签分类情况
     # print(full_dataset) # 17类
     # print(full_dataset.classes) # 17类
-    print(full_dataset.class_to_idx) # 17类对应的标签
+    # print(full_dataset.class_to_idx) # 17类对应的标签
     # print(full_dataset.samples[0]) # 查看一个样本的分类情况
     # print(full_dataset.targets) # 所有样本的标签
     # print(range(len(full_dataset)))
@@ -154,6 +156,12 @@ def fine_tuning():
                                          patience=3,
                                          factor=0.1)
 
+    # 可视化训练过程
+    # tensorboard --logdir xxx 用这个命令启动tensorboard看板
+    log_dir = Path(__file__).parent.parent.joinpath("assets/log")
+    writer = SummaryWriter(log_dir=str(log_dir))
+    # 将执行图添加到writer中
+    writer.add_graph(model, input_to_model=torch.rand(2, 3, 224, 224).to(device))
     # ==========================================
     # 4. Early Stopping 参数
     # ==========================================
@@ -166,6 +174,8 @@ def fine_tuning():
     # 5. 开始训练
     # =========================
     epochs = 30
+    train_step = 0
+    val_step = 0
     for epoch in range(epochs):
         # 切换到训练模式
         model.train()
@@ -216,6 +226,9 @@ def fine_tuning():
             train_total += y.size(0)
             # print(f"epoch: {epoch}, loss: {loss.item()}")
 
+            writer.add_scalar('train_batch_loss', loss.item(), global_step=train_step)
+            train_step += 1
+
         # 训练集准确率
         train_acc = train_correct / train_total
         train_avg_loss = train_loss / train_total
@@ -240,6 +253,9 @@ def fine_tuning():
                 val_total += y.size(0)
                 val_total_loss += val_loss
 
+                acc = metrics.accuracy_score(y.cpu().numpy(), predict.cpu().numpy())
+                writer.add_scalar('val_batch_acc', acc, global_step=val_step)
+                val_step += 1
         # 验证集准确率
         val_acc = val_total_correct / val_total
         val_avg_loss = val_total_loss / val_total
@@ -275,7 +291,8 @@ def fine_tuning():
             if counter >= patience:
                 print("🛑 Early stopping triggered.")
                 break
-
+    # 关闭writer
+    writer.close()
         # 评价指标
         # 准确率
         # 召回率
@@ -287,5 +304,5 @@ def fine_tuning():
 if __name__ == '__main__':
     # load_flower_images(35)
     # load_model()
-    # fine_tuning()
-    load_data()
+    fine_tuning()
+    # load_data()
