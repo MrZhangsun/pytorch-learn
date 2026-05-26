@@ -9,7 +9,7 @@ def test_nllb_translation():
     model_name = "facebook/nllb-200-distilled-600M"
 
     # 1. 加载分词器（指定源语言为英语）
-    tokenizer = AutoTokenizer.from_pretrained(model_name, src_lang="eng_Latn")
+    tokenizer = AutoTokenizer.from_pretrained(model_name, src_lang="zho_Hans")
 
     # 2. 加载模型（使用半精度以降低显存）
     model = AutoModelForSeq2SeqLM.from_pretrained(
@@ -20,10 +20,7 @@ def test_nllb_translation():
 
     # 3. 测试文本
     texts = [
-        "The VGG16 model uses a deep convolutional neural network architecture.",
-        "Artificial intelligence is transforming the way we interact with technology.",
-        "Machine learning models require large amounts of data for training.",
-        "Do you know what is the UPC?"
+        "工厂直营"
     ]
 
     for text in texts:
@@ -34,7 +31,7 @@ def test_nllb_translation():
         with torch.no_grad():
             translated_tokens = model.generate(
                 **inputs,
-                forced_bos_token_id=tokenizer.convert_tokens_to_ids("zho_Hans"),
+                forced_bos_token_id=tokenizer.convert_tokens_to_ids("eng_Latn"),
                 max_length=128,
                 num_beams=4,
             )
